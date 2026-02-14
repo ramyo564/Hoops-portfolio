@@ -217,7 +217,8 @@ export const templateConfig = {
         description: 'Hoops 포트폴리오 관련 문의는 아래 채널로 부탁드립니다.',
         actions: [
             { label: 'EMAIL', href: 'mailto:yohan032yohan@gmail.com' },
-            { label: 'GITHUB', href: 'https://github.com/ramyo564/Hoops' }
+            { label: 'GITHUB', href: 'https://github.com/ramyo564/Hoops' },
+            { label: 'TEAM_REPO', href: 'https://github.com/hoops-project' }
         ]
     },
 
