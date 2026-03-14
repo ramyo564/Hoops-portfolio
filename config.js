@@ -62,6 +62,58 @@ export const templateConfig = {
             id: 'hoops-cases',
             title: 'HOOPS_TROUBLESHOOTING_CASES',
             navLabel: 'CASES',
+            sectionLead: '대표 3건을 먼저 보고, 필요할 때 전체 Case 1~5를 확장해 깊게 읽을 수 있도록 구성했습니다.',
+            recruiterBrief: {
+                kicker: 'RECRUITER_QUICK_BRIEF',
+                title: '1분 요약으로 먼저 보는 핵심 변화',
+                cases: [
+                    {
+                        id: 'Case 1',
+                        anchorId: 'hoops-case-1',
+                        title: '채팅 중복 메시지 전송 제어',
+                        problem: '재입장 이력 전송 시 기존 참여자 화면에 중복 렌더링 발생',
+                        action: '유저별 ChatRoom 식별값 기반 히스토리 목적지 분리',
+                        impact: '과거 메시지 이력과 실시간 브로드캐스트 경로 완벽 분리'
+                    },
+                    {
+                        id: 'Case 2',
+                        anchorId: 'hoops-case-2',
+                        title: '신고/제재 블랙리스트 연동',
+                        problem: '관리자 제재가 인증 경로에서 즉시 차단되지 않음',
+                        action: 'JWT 토큰 검증 단계에 ManagerService 블랙리스트 확인 강제 연동',
+                        impact: '신고 접수부터 접속 차단, 해제까지 단일 트랙으로 연결'
+                    },
+                    {
+                        id: 'Case 3',
+                        anchorId: 'hoops-case-3',
+                        title: '검색 필터 Specification 표준화',
+                        problem: '조건 조합마다 분기문 추가로 쿼리 관리 비용 증가',
+                        action: 'Optional 조건들을 Specification and 체인으로 동적 결합',
+                        impact: '검색 엔드포인트 단일화 및 페이지네이션 기반 응답 안정성 확보'
+                    },
+                    {
+                        id: 'Case 4',
+                        anchorId: 'hoops-case-4',
+                        title: '매너포인트 평가 정합성 보호',
+                        problem: '경기 시간/대상 검증 누락으로 중복 평가 및 비정상 데이터 유입',
+                        action: '평가 대상 조건/중복 내역 검증 및 참여 검증 가드 추가',
+                        impact: '오염 데이터 발생 방지 및 매너포인트 지표 신뢰도 상승'
+                    },
+                    {
+                        id: 'Case 5',
+                        anchorId: 'hoops-case-5',
+                        title: 'Docker + Github Actions 자동배포',
+                        problem: '수동 배포 환경의 절차 편차 및 리드타임 지연 위험',
+                        action: '멀티스테이지 경량화 + self-hosted 배포 자동화 루프 구축',
+                        impact: '배포 소요시간 15분+에서 3분 이내로 단축 및 이미지 크기 최적화'
+                    }
+                ]
+            },
+            featuredCaseAnchors: ['hoops-case-1', 'hoops-case-2', 'hoops-case-5'],
+            featuredCaseCount: 3,
+            featuredStateLabel: '대표 3건 우선 노출',
+            featuredToggleLabel: '전체 Case 1~5 보기',
+            featuredCollapseLabel: '대표 Case 3건만 보기',
             theme: 'blue',
             cardVisualHeight: '270px',
             cardClass: 'problem-case-card',
@@ -76,6 +128,7 @@ export const templateConfig = {
                             title: 'Case 1. 채팅 재입장 시 과거 메시지 중복 전송 제어',
                             subtitle: '2024-06 · ChatService 리팩터링',
                             overview: '초기 단일 채팅방(sessionId 공유) 구조에서 발생한 문제를,\n유저별 채팅방/목적지 분리 구조로 정리한 케이스입니다.',
+                            businessImpact: '채팅 중복 노출 방지로 실시간 채팅 사용성 개선 및 이용자 불만 인입 감소',
                             role: '메시지 라우팅 구조 개선, 서비스 계층 리팩터링, 테스트 반영',
                             stackSummary: 'Spring WebSocket(STOMP), ChatService, MessageSender, JUnit5',
                             problem: '1) BEFORE 구조는 `gameId` 기준 단일 ChatRoom + 공유 sessionId 기반이었습니다.\n2) 이력 조회 결과가 공용 topic 경로로 전달되는 구간이 있었습니다.\n3) 재입장 사용자 이력을 불러올 때 기존 참여자도 같은 payload를 받아 중복 렌더링이 발생했습니다.',
@@ -101,6 +154,7 @@ export const templateConfig = {
                             title: 'Case 2. 신고 처리에서 블랙리스트 라이프사이클 일관화',
                             subtitle: '2024-05 · Report + Manager + TokenProvider',
                             overview: '신고 접수 -> 관리자 제재 -> 인증 차단을\n각 서비스 책임으로 분리하면서 하나의 운영 체인으로 연결한 케이스입니다.',
+                            businessImpact: '강력한 제재 라이프사이클 적용으로 어뷰징 유저 즉각 차단 및 커뮤니티 신뢰도 상승',
                             role: '블랙리스트 등록/해제 로직 구현, 인증 경로 제재 연동, 예외 흐름 테스트',
                             stackSummary: 'ReportService, ManagerService, TokenProvider, BlackListUserRepository',
                             problem: '1) 신고 저장과 제재 반영 시점이 분리되면 정책 집행 타이밍이 어긋납니다.\n2) 관리자가 제재를 걸어도 인증 경로에서 즉시 막히지 않을 수 있습니다.\n3) 신고 이력 상태와 실제 차단 상태가 불일치하면 운영 신뢰도가 떨어집니다.',
@@ -132,6 +186,7 @@ export const templateConfig = {
                             title: 'Case 3. 동적 검색 필터 조합을 Specification으로 표준화',
                             subtitle: '2024-05 · GameUserService 검색 API',
                             overview: '경기 검색에서 조건 조합 증가로 생기는 API/쿼리 복잡도를\nSpecification 조합 방식으로 표준화한 케이스입니다.',
+                            businessImpact: '검색 기능 유연성 확보 및 관리 비용 절감으로 운영 리소스 낭비 방지',
                             role: '검색 API 설계, Specification 조합 로직 구현, 공통 응답 모델 연결',
                             stackSummary: 'Spring Data JPA Specification, GameCheckOutSpecifications, Paging DTO',
                             problem: '1) 필터 조건이 늘어날 때마다 분기문/별도 API가 늘어나는 구조였습니다.\n2) 백엔드는 쿼리 조합 관리 비용이 증가하고, 프론트는 화면별 호출 규칙이 달라졌습니다.',
@@ -156,6 +211,7 @@ export const templateConfig = {
                             title: 'Case 4. 매너포인트 평가 정합성 가드 추가',
                             subtitle: '2024-05 · MannerPoint 평가 흐름',
                             overview: '매너포인트를 운영 지표로 신뢰 가능하게 유지하기 위해,\n저장/조회 경로에 정합성 가드를 구성한 케이스입니다.',
+                            businessImpact: '핵심 평판 지표에 대한 데이터 신뢰도 보장으로 유저 간 서비스 매칭 만족도 상승',
                             role: '평가 가드 조건 설계, 중복 방지 로직 구현, 테스트 케이스 정리',
                             stackSummary: 'GameUserService, MannerPointRepository, ParticipantGameStatus',
                             problem: '1) 검증 없는 저장은 동일 경기/동일 대상 중복 평가를 만들 수 있습니다.\n2) 경기 시작 전 평가, 비참가자 대상 노출 같은 비정상 데이터가 섞일 수 있습니다.\n3) 이런 오염 데이터는 운영 제재/신뢰도 판단을 왜곡합니다.',
@@ -186,6 +242,7 @@ export const templateConfig = {
                             title: 'Case 5. Docker Multi-stage + GitHub Actions 자동배포',
                             subtitle: '2024-08 · 배포 파이프라인 표준화',
                             overview: '수동 배포로 발생한 리드타임/환경 편차를\n컨테이너 표준화와 CI-CD 자동화로 개선한 케이스입니다.',
+                            businessImpact: '배포 자동화 달성으로 릴리즈 리스크 감소 및 운영팀의 신속한 기능 배포 환경 구축',
                             role: 'Dockerfile 최적화, Actions 워크플로우 구축, self-hosted 배포 자동화',
                             stackSummary: 'Docker Multi-stage, docker-compose, GitHub Actions, Self-hosted Runner',
                             problem: '1) 수동 배포는 빌드/푸시/서버 반영 과정이 사람 손에 의존합니다.\n2) 누락/순서 오류 가능성이 있고, 실행자에 따라 절차 편차가 생깁니다.\n3) 결과적으로 릴리즈 품질과 리드타임이 불안정해집니다.',
