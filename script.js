@@ -525,6 +525,22 @@ function renderHero() {
     hero.metrics,
     "> Add metrics in templateConfig.hero.metrics",
   );
+
+  // quickLinks 렌더링 추가
+  const actionsContainer = byId("hero-actions");
+  if (actionsContainer && Array.isArray(hero.quickLinks)) {
+    actionsContainer.replaceChildren();
+    hero.quickLinks.forEach((link) => {
+      const a = document.createElement("a");
+      a.className = `hero-action-btn variant-${link.variant || "primary"}`;
+      a.href = link.href;
+      a.textContent = link.label;
+      if (link.href.startsWith("http")) {
+        a.target = "_blank";
+      }
+      actionsContainer.appendChild(a);
+    });
+  }
 }
 
 function renderMetricLines(container, lines, fallbackText) {
@@ -904,6 +920,7 @@ function createSectionRecruiterBrief(sectionConfig) {
         .map((item) => ({
           id: String(item?.id || "").trim(),
           anchorId: String(item?.anchorId || "").trim(),
+          externalUrl: String(item?.externalUrl || "").trim(),
           title: String(item?.title || "").trim(),
           problem: String(item?.problem || "").trim(),
           action: String(item?.action || "").trim(),
@@ -1009,15 +1026,21 @@ function createSectionRecruiterBrief(sectionConfig) {
       if (actionRow) details.appendChild(actionRow);
       if (impactRow) details.appendChild(impactRow);
 
-      if (item.anchorId) {
+      if (item.externalUrl || item.anchorId) {
         const gotoBtn = document.createElement("button");
         gotoBtn.className = "card-extra-btn";
         gotoBtn.style.marginTop = "0.8rem";
         gotoBtn.style.width = "100%";
-        gotoBtn.textContent = "GO_TO_FULL_PROBLEM_SOLVING";
-        gotoBtn.addEventListener("click", (e) => {          e.stopPropagation();
-          const targetId = item.anchorId.replace(/^#/, "");
-          revealHashTarget(targetId, "recruiter_card_goto");
+        gotoBtn.textContent = item.externalUrl ? "GO_TO_EXTERNAL_LINK" : "GO_TO_FULL_PROBLEM_SOLVING";
+        
+        gotoBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (item.externalUrl) {
+            window.open(item.externalUrl, "_blank");
+          } else if (item.anchorId) {
+            const targetId = item.anchorId.replace(/^#/, "");
+            revealHashTarget(targetId, "recruiter_card_goto");
+          }
         });
         details.appendChild(gotoBtn);
       }

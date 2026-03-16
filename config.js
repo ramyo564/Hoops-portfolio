@@ -94,7 +94,7 @@ export const templateConfig = {
             id: 'hoops-cases',
             title: 'HOOPS_TROUBLESHOOTING_CASES',
             navLabel: 'CASES',
-            sectionLead: '대표 3건을 먼저 보고, 필요할 때 전체 Case 1~5를 확장해 깊게 읽을 수 있도록 구성했습니다.',
+            sectionLead: 'Case 1~5을 1분 요약페이지와 아키텍처, 깃허브 페이지로 구성했습니다.',
             recruiterBrief: {
                 kicker: 'RECRUITER_QUICK_BRIEF',
                 title: 'Hoops 핵심 문제 해결 요약 (1-Minute Summary)',
@@ -138,6 +138,24 @@ export const templateConfig = {
                         problem: '경기 시간/대상 검증 누락으로 인한 부정 평가 리스크',
                         action: '도메인 핵심 규칙 가드 구축 및 사전/사후 검증 파이프라인 정립',
                         impact: '평판 지표 데이터 신뢰도 확보 및 오염 데이터 유입 차단'
+                    },
+                    {
+                        id: 'Architecture',
+                        anchorId: 'EXTERNAL_DOCS',
+                        title: '시스템 아키텍처 딥다이브',
+                        problem: '전체적인 도메인 설계, 패키지 구조 및 인프라 구성의 상세 기술 근거 확인 필요',
+                        action: 'Hoops Architecture Docs (Deep Dive) 지면을 통한 설계 의도 및 다이어그램 공개',
+                        impact: '시스템 전체 구조에 대한 깊은 이해 및 아키텍처적 완성도 검증 가능',
+                        externalUrl: 'https://ramyo564.github.io/Hoops/'
+                    },
+                    {
+                        id: 'Repository',
+                        anchorId: 'EXTERNAL_REPO',
+                        title: 'GitHub 소스 코드 확인',
+                        problem: '구현된 로직의 실제 코드 품질, 커밋 히스토리 및 기술적 디테일 확인 필요',
+                        action: 'Hoops GitHub Repository를 통한 실제 구현체 및 설정 파일 공개',
+                        impact: '코드 생산성, 클린 코드 준수 여부 및 실제 기술 스택 활용 능력 검증 가능',
+                        externalUrl: 'https://github.com/ramyo564/Hoops'
                     }
                 ],
                 links: [
