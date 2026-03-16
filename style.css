@@ -819,6 +819,59 @@ body.modal-open {
   cursor: grabbing;
 }
 
+.panel-metrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  list-style: none;
+}
+
+.panel-metrics-item {
+  font-family: 'Roboto Mono', 'Fira Code', monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.panel-metrics-item:last-child {
+  border-bottom: none;
+}
+
+/* 태그 [SYSTEM], [MY ROLE] 스타일 */
+.panel-metrics-tag {
+  color: var(--accent-color);
+  font-weight: 700;
+  width: 95px;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+/* 구분선 텍스트 스타일 */
+.panel-metrics-divider {
+  height: 1px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.2);
+  margin: 0.6rem 0;
+  list-style: none;
+}
+
+/* MY ROLE 항목 강조 */
+.panel-metrics-item.is-role {
+  color: var(--text-bright);
+  background: rgba(88, 166, 255, 0.05);
+  border-radius: 4px;
+  padding-left: 0.4rem;
+}
+
+.panel-metrics-item.is-role .panel-metrics-tag {
+  color: #ff9d00; /* 주황색 계열로 역할 강조 */
+}
+
 @media (max-width: 1200px) {
   .status-bar {
     grid-template-columns: auto 1fr;
@@ -1008,6 +1061,16 @@ body.modal-open {
   }
 }
 
+/* Highlight Animation */
+@keyframes target-highlight-pulse {
+    0% { background-color: rgba(88, 166, 255, 0.4); box-shadow: 0 0 0 4px rgba(88, 166, 255, 0.2); }
+    50% { background-color: rgba(88, 166, 255, 0.15); box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.1); }
+    100% { background-color: transparent; box-shadow: none; }
+}
+.is-target-highlight {
+    animation: target-highlight-pulse 2s ease-out forwards;
+}
+
 .card-business-impact {
   margin: 0.75rem 0;
   padding: 0.75rem 1rem;
@@ -1083,6 +1146,41 @@ body.modal-open {
   transform: translateY(-2px);
   border-color: rgba(88, 166, 255, 0.65);
   background: rgba(88, 166, 255, 0.12);
+}
+
+.section-recruiter-card-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin 0.3s ease-out;
+    opacity: 0;
+}
+
+.section-recruiter-card.is-expanded .section-recruiter-card-details {
+    max-height: 1000px;
+    opacity: 1;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.section-recruiter-card-toggle-hint {
+    font-family: var(--font-code);
+    font-size: 0.62rem;
+    color: var(--text-secondary);
+    margin-top: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.section-recruiter-card-toggle-hint::after {
+    content: "▼";
+    font-size: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.section-recruiter-card.is-expanded .section-recruiter-card-toggle-hint::after {
+    transform: rotate(180deg);
 }
 
 .section-recruiter-card-id {

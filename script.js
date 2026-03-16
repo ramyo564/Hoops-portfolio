@@ -358,6 +358,18 @@ function rerenderVisibleCardDiagrams(entries, options = {}) {
   });
 }
 
+/**
+ * Synchronizes the body scroll lock based on the modal's open state.
+ */
+function syncModalBodyLock() {
+  const modal = document.getElementById("mermaid-modal");
+  if (modal && modal.classList.contains("is-open")) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+}
+
 function byId(id) {
   return document.getElementById(id);
 }
@@ -519,17 +531,54 @@ function renderMetricLines(container, lines, fallbackText) {
   const metricLines = Array.isArray(lines) ? lines : [];
   if (metricLines.length === 0) {
     const fallback = document.createElement("p");
+    fallback.style.fontSize = "0.75rem";
+    fallback.style.color = "var(--text-dim)";
     fallback.textContent = fallbackText;
     container.appendChild(fallback);
     return;
   }
 
+  const list = document.createElement("ul");
+  list.className = "panel-metrics-list";
+
   metricLines.forEach((line) => {
-    const item = document.createElement("p");
-    const cleanLine = String(line).replace(/^>\s*/, "");
-    item.textContent = `> ${cleanLine}`;
-    container.appendChild(item);
+    const text = String(line || "").trim();
+    if (!text) return;
+
+    if (text.startsWith("---") || text.startsWith("- - -")) {
+      const divider = document.createElement("li");
+      divider.className = "panel-metrics-divider";
+      list.appendChild(divider);
+      return;
+    }
+
+    const li = document.createElement("li");
+    li.className = "panel-metrics-item";
+
+    const match = text.match(/^•\s*\[(.*?)\]\s*(.*)$/);
+    if (match) {
+      const tag = match[1];
+      const content = match[2];
+
+      const tagSpan = document.createElement("span");
+      tagSpan.className = "panel-metrics-tag";
+      tagSpan.textContent = `[${tag}]`;
+
+      const contentSpan = document.createElement("span");
+      contentSpan.className = "panel-metrics-content";
+      contentSpan.textContent = content;
+
+      if (tag.toUpperCase().includes("ROLE")) {
+        li.classList.add("is-role");
+      }
+
+      li.append(tagSpan, contentSpan);
+    } else {
+      li.textContent = text.replace(/^•\s*/, "");
+    }
+    list.appendChild(li);
   });
+  container.appendChild(list);
 }
 
 function createTopPanel(panel, index) {
@@ -901,27 +950,12 @@ function createSectionRecruiterBrief(sectionConfig) {
       const card = document.createElement("article");
       card.className = "section-recruiter-card";
       if (item.anchorId) {
-        card.setAttribute("data-anchor-id", item.anchorId);
-        card.addEventListener("click", () => {
-          const targetId = item.anchorId.replace(/^#/, "");
-          ensureCaseCardVisible(targetId);
-          const targetEl = document.getElementById(targetId);
-          if (targetEl) {
-            targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
-            history.pushState(null, "", `#${targetId}`);
-          }
-          trackSelectContent({
-            contentType: "recruiter_quick_brief_card",
-            itemId: item.id || "unknown_case",
-            itemName: item.title || "unknown_case",
-            sectionName: "recruiter_quick_brief",
-            interactionAction: "click_card",
-            elementType: "article",
-            elementLabel: item.id || "unknown_case",
-            linkUrl: `#${targetId}`,
-          });
-        });
+        card.id = `brief-${item.anchorId.replace(/^#/, "")}`;
       }
+
+      const header = document.createElement("div");
+      header.className = "section-recruiter-card-header";
+      header.style.cursor = "pointer";
 
       const idLine = document.createElement("p");
       idLine.className = "section-recruiter-card-id";
@@ -931,19 +965,36 @@ function createSectionRecruiterBrief(sectionConfig) {
       cardTitle.className = "section-recruiter-card-title";
       cardTitle.textContent = item.title || "핵심 변화";
 
+      header.append(idLine, cardTitle);
+
+      const toggleHint = document.createElement("div");
+      toggleHint.className = "section-recruiter-card-toggle-hint";
+      toggleHint.textContent = "DETAILS";
+      header.appendChild(toggleHint);
+
+      const details = document.createElement("div");
+      details.className = "section-recruiter-card-details";
+
       const createRow = (labelText, valueText) => {
         if (!valueText) {
           return null;
         }
         const row = document.createElement("p");
         row.className = "section-recruiter-card-row";
+        row.style.marginBottom = "0.4rem";
 
         const label = document.createElement("span");
         label.className = "section-recruiter-card-key";
-        label.textContent = `${labelText}:`;
+        label.style.display = "block";
+        label.style.fontWeight = "bold";
+        label.style.color = "var(--accent-orange)";
+        label.style.fontSize = "0.65rem";
+        label.textContent = labelText;
 
         const value = document.createElement("span");
         value.className = "section-recruiter-card-value";
+        value.style.fontSize = "0.78rem";
+        value.style.color = "var(--text-secondary)";
         value.textContent = valueText;
 
         row.append(label, value);
@@ -954,16 +1005,38 @@ function createSectionRecruiterBrief(sectionConfig) {
       const actionRow = createRow("ACTION", item.action);
       const impactRow = createRow("IMPACT", item.impact);
 
-      card.append(idLine, cardTitle);
-      if (problemRow) {
-        card.appendChild(problemRow);
+      if (problemRow) details.appendChild(problemRow);
+      if (actionRow) details.appendChild(actionRow);
+      if (impactRow) details.appendChild(impactRow);
+
+      if (item.anchorId) {
+        const gotoBtn = document.createElement("button");
+        gotoBtn.className = "card-extra-btn";
+        gotoBtn.style.marginTop = "0.8rem";
+        gotoBtn.style.width = "100%";
+        gotoBtn.textContent = "GO_TO_FULL_PROBLEM_SOLVING";
+        gotoBtn.addEventListener("click", (e) => {          e.stopPropagation();
+          const targetId = item.anchorId.replace(/^#/, "");
+          revealHashTarget(targetId, "recruiter_card_goto");
+        });
+        details.appendChild(gotoBtn);
       }
-      if (actionRow) {
-        card.appendChild(actionRow);
-      }
-      if (impactRow) {
-        card.appendChild(impactRow);
-      }
+
+      card.append(header, details);
+
+      card.addEventListener("click", () => {
+        const isExpanded = card.classList.toggle("is-expanded");
+        trackSelectContent({
+          contentType: "recruiter_quick_brief_card",
+          itemId: item.id || "unknown_case",
+          itemName: item.title || "unknown_case",
+          sectionName: "recruiter_quick_brief",
+          interactionAction: isExpanded ? "expand" : "collapse",
+          elementType: "article",
+          elementLabel: item.id || "unknown_case",
+        });
+      });
+
       cardGrid.appendChild(card);
     });
 
@@ -1069,170 +1142,14 @@ function renderServiceSections() {
       groupsContainer.appendChild(groupSection);
     });
 
-    const configuredFeaturedAnchors = Array.isArray(
-      sectionConfig.featuredCaseAnchors,
-    )
-      ? sectionConfig.featuredCaseAnchors
-          .map((anchorId) => String(anchorId || "").trim())
-          .filter(Boolean)
-      : [];
-    const featuredCountCandidate = Number.parseInt(
-      sectionConfig.featuredCaseCount,
-      10,
-    );
-    const featuredCount =
-      Number.isFinite(featuredCountCandidate) && featuredCountCandidate > 0
-        ? featuredCountCandidate
-        : 3;
-    let featuredAnchors = configuredFeaturedAnchors.filter((anchorId) =>
-      renderedCards.some((entry) => entry.anchorId === anchorId),
-    );
-    if (featuredAnchors.length === 0) {
-      featuredAnchors = renderedCards
-        .slice(0, featuredCount)
-        .map((entry) => entry.anchorId)
-        .filter(Boolean);
-    }
+    // Always show all cards as requested
+    renderedCards.forEach((entry) => {
+      entry.element.hidden = false;
+    });
 
-    const featuredSet = new Set(featuredAnchors);
-    const allAnchorSet = new Set(
-      renderedCards.map((entry) => entry.anchorId).filter(Boolean),
-    );
-    const canCollapse =
-      featuredSet.size > 0 && featuredSet.size < renderedCards.length;
-
-    if (canCollapse) {
-      const controls = document.createElement("div");
-      controls.className = "case-showcase-controls";
-
-      const stateLabel = String(
-        sectionConfig.featuredStateLabel ||
-          `대표 ${featuredSet.size}건 우선 노출`,
-      ).trim();
-      const expandLabel = String(
-        sectionConfig.featuredToggleLabel ||
-          `전체 Case ${renderedCards.length}건 보기`,
-      ).trim();
-      const collapseLabel = String(
-        sectionConfig.featuredCollapseLabel ||
-          `대표 Case ${featuredSet.size}건만 보기`,
-      ).trim();
-
-      const state = document.createElement("span");
-      state.className = "case-showcase-state";
-
-      const toggleButton = document.createElement("button");
-      toggleButton.type = "button";
-      toggleButton.className = "case-showcase-toggle";
-      toggleButton.setAttribute("aria-expanded", "false");
-
-      let isCollapsed = true;
-
-      const applyVisibility = () => {
-        const newlyVisibleEntries = [];
-        renderedCards.forEach((entry) => {
-          const wasHidden = entry.element.hidden;
-          const isVisible = !isCollapsed || featuredSet.has(entry.anchorId);
-          entry.element.hidden = !isVisible;
-          entry.element.classList.toggle("is-collapsed-hidden", !isVisible);
-          if (wasHidden && isVisible) {
-            newlyVisibleEntries.push(entry);
-          }
-        });
-
-        groupCardMap.forEach((cardNodes, groupSection) => {
-          const hasVisibleCard = cardNodes.some((cardNode) => !cardNode.hidden);
-          groupSection.hidden = !hasVisibleCard;
-          groupSection.classList.toggle("is-collapsed-empty", !hasVisibleCard);
-        });
-
-        if (recruiterCaseCards.length > 0) {
-          recruiterCaseCards.forEach((cardNode) => {
-            const anchorId = String(
-              cardNode.getAttribute("data-anchor-id") || "",
-            ).trim();
-            const isVisible =
-              !isCollapsed || !anchorId || featuredSet.has(anchorId);
-            cardNode.hidden = !isVisible;
-            cardNode.classList.toggle("is-collapsed-hidden", !isVisible);
-          });
-        }
-
-        sectionWrapper.classList.toggle("is-featured-collapsed", isCollapsed);
-        const hiddenCount = Math.max(
-          0,
-          renderedCards.length - featuredSet.size,
-        );
-        state.textContent = isCollapsed
-          ? `${stateLabel} · 현재 ${featuredSet.size}/${renderedCards.length}건 표시 (숨김 ${hiddenCount}건)`
-          : `현재 전체 ${renderedCards.length}/${renderedCards.length}건 표시`;
-        toggleButton.textContent = isCollapsed ? expandLabel : collapseLabel;
-        toggleButton.setAttribute("aria-expanded", String(!isCollapsed));
-        if (!isCollapsed) {
-          rerenderVisibleCardDiagrams(
-            newlyVisibleEntries.length > 0
-              ? newlyVisibleEntries
-              : renderedCards,
-            { force: true },
-          );
-        }
-        window.dispatchEvent(new Event("resize"));
-      };
-
-      const setCollapsed = (nextCollapsed, triggerSource = "toggle") => {
-        if (isCollapsed === nextCollapsed) {
-          return false;
-        }
-
-        isCollapsed = nextCollapsed;
-        applyVisibility();
-
-        trackSelectContent({
-          contentType: "case_showcase_toggle",
-          itemId: sectionConfig.id || "service_cases",
-          itemName: sectionConfig.title || "CASES",
-          sectionName: "service_section",
-          interactionAction: isCollapsed ? "collapse" : "expand",
-          elementType: "button",
-          elementLabel: "CASE_SHOWCASE_TOGGLE",
-          value: renderedCards.length,
-          trigger_source: triggerSource,
-          hidden_count: isCollapsed
-            ? Math.max(0, renderedCards.length - featuredSet.size)
-            : 0,
-          visible_count: isCollapsed ? featuredSet.size : renderedCards.length,
-        });
-        return true;
-      };
-
-      toggleButton.addEventListener("click", () => {
-        setCollapsed(!isCollapsed, "toggle_button");
-      });
-
-      controls.append(state, toggleButton);
-      const recruiterActionMount = recruiterBrief?.querySelector(
-        ".section-recruiter-actions",
-      );
-      if (recruiterActionMount instanceof HTMLElement) {
-        recruiterActionMount.appendChild(controls);
-      } else {
-        header.appendChild(controls);
-      }
-      applyVisibility();
-
-      caseShowcaseControllers.push({
-        sectionId: sectionConfig.id || "",
-        revealCase(anchorId, triggerSource = "target_reveal") {
-          if (
-            !anchorId ||
-            !allAnchorSet.has(anchorId) ||
-            !isCollapsed ||
-            featuredSet.has(anchorId)
-          ) {
-            return false;
-          }
-          return setCollapsed(false, triggerSource);
-        },
+    if (recruiterCaseCards.length > 0) {
+      recruiterCaseCards.forEach((cardNode) => {
+        cardNode.hidden = false;
       });
     }
 
@@ -1246,9 +1163,7 @@ function renderServiceSections() {
 }
 
 function ensureCaseCardVisible(targetId) {
-  const anchorId = String(targetId || "")
-    .replace(/^#/, "")
-    .trim();
+  const anchorId = String(targetId || "").replace(/^#/, "").trim();
   if (!anchorId || caseShowcaseControllers.length === 0) {
     return false;
   }
@@ -1262,28 +1177,48 @@ function ensureCaseCardVisible(targetId) {
       revealed = true;
     }
   });
-  if (revealed) {
-    const target = document.getElementById(anchorId);
-    if (target) {
-      void target.offsetWidth; // trigger reflow
-      target.classList.add("target-highlight");
-      setTimeout(() => target.classList.remove("target-highlight"), 1200);
-
-      const showcaseId = target.closest(".service-section")?.id || "";
-      trackSelectContent({
-        contentType: "case_showcase_reveal",
-        itemId: anchorId,
-        itemName:
-          target.querySelector(".card-title")?.textContent?.trim() || anchorId,
-        sectionName: "service_section",
-        interactionAction: "reveal_target",
-        elementType: "article",
-        elementLabel: "CASE_REVEALED",
-        showcase_id: showcaseId,
-      });
-    }
-  }
   return revealed;
+}
+
+function revealHashTarget(hashValue, triggerSource = "hash_navigation") {
+  const targetId = String(hashValue || "").replace(/^#/, "").trim();
+  if (!targetId) {
+    return;
+  }
+
+  ensureCaseCardVisible(targetId);
+
+  window.setTimeout(() => {
+    const target = byId(targetId) || byId(`brief-${targetId}`);
+    if (!target) {
+      return;
+    }
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    target.classList.remove("is-target-highlight");
+    void target.offsetWidth; // trigger reflow
+    target.classList.add("is-target-highlight");
+
+    // Also check if it's a recruiter card to expand it
+    if (target.classList.contains("section-recruiter-card")) {
+      target.classList.add("is-expanded");
+    }
+
+    const showcaseId = target.closest(".service-section")?.id || "";
+    trackSelectContent({
+      contentType: "hash_target_reveal",
+      itemId: targetId,
+      itemName:
+        target.querySelector(".card-title, .section-recruiter-card-title")
+          ?.textContent?.trim() || targetId,
+      sectionName: "service_section",
+      interactionAction: "reveal_target",
+      elementType: "section",
+      elementLabel: "HASH_TARGET_REVEAL",
+      trigger_source: triggerSource,
+      showcase_id: showcaseId,
+    });
+  }, 100);
 }
 
 function renderContact() {
@@ -1556,11 +1491,15 @@ function setupScrollSpy() {
     }
     currentActiveId = targetId;
 
+    const matchedLink = links.find((l) => {
+        const h = l.getAttribute("href");
+        return h === `#${targetId}` || h === targetId;
+    });
+    const itemName = matchedLink?.textContent?.trim() || targetId;
     const isCaseCard =
       targetId.startsWith("hoops-case-") ||
       targetId.startsWith("case-") ||
       targetId.includes("-case-");
-    const itemName = matched.links[0]?.textContent?.trim() || targetId;
 
     // Ensure analyticsSession has these sets defined
     analyticsSession.uniqueCaseViews =
@@ -1806,14 +1745,24 @@ function setupMermaidModal() {
     applyZoom();
   };
 
+  let lastFocusedElement = null;
+
   const closeModal = () => {
     const wasOpen = modal.classList.contains("is-open");
     const closingTitle = modalTitle.textContent || "Mermaid Diagram";
     const modalDurationMs = analyticsSession.mermaidModalOpenedAt
       ? Math.max(0, Date.now() - analyticsSession.mermaidModalOpenedAt)
       : 0;
+    
+    // 1. 포커스를 먼저 외부로 돌려주어 aria-hidden 충돌 방지
+    if (lastFocusedElement) {
+      lastFocusedElement.focus();
+    }
+    
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
+    modal.setAttribute("inert", ""); // 브라우저가 모달 내부 요소를 무시하게 함
+    
     modalContent.replaceChildren();
     endPan();
     modalContent.classList.remove("can-pan");
@@ -1848,6 +1797,9 @@ function setupMermaidModal() {
     if (!sourceSvg) {
       return;
     }
+
+    // 현재 포커스된 요소를 저장하여 나중에 복구
+    lastFocusedElement = document.activeElement;
 
     const clonedSvg = sourceSvg.cloneNode(true);
     clonedSvg.style.maxWidth = "none";
@@ -1921,8 +1873,16 @@ function setupMermaidModal() {
 
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
+    modal.removeAttribute("inert"); // 모달이 열리면 비활성화 해제
+
     syncModalBodyLock();
     scheduleCenterModalView();
+
+    // 닫기 버튼으로 포커스 이동
+    const closeBtn = modal.querySelector(".mermaid-modal-close");
+    if (closeBtn) {
+      setTimeout(() => closeBtn.focus(), 100);
+    }
 
     trackSelectContent({
       contentType: "mermaid_diagram",
@@ -2116,4 +2076,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   setupMermaidModal();
   setupScrollSpy();
+
+  if (window.location.hash) {
+    revealHashTarget(window.location.hash, "page_load");
+  }
+
+  window.addEventListener("hashchange", () => {
+    revealHashTarget(window.location.hash, "hash_change");
+  });
 });

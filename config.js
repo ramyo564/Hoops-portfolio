@@ -7,16 +7,48 @@ export const templateConfig = {
     },
 
     hero: {
-        sectionId: 'hoops-problem-solving',
-        panelTitle: 'HOOPS_PROBLEM_SOLVING_OVERVIEW',
-        panelUid: 'ID: HOOPS-PS-00',
-        diagramId: 'hoops-problem-overview',
+        sectionId: 'hoops-system-architecture',
+        panelTitle: 'SYSTEM_ARCHITECTURE',
+        panelUid: 'ID: HOOPS-SYS-00',
+        diagramId: 'hoops-integrated-architecture',
+        headline: '실시간 소셜 플랫폼의 운영 효율 및 배포 안정성 극대화',
         metrics: [
-            '이력서 Hoops 항목을 코드 단위로 재구성해, 문제-원인-해결-결과 흐름으로 정리했습니다.',
-            '핵심 근거는 ChatService, GameUserService, ReportService, ManagerService, TokenProvider, Docker/GitHub Actions 설정입니다.',
-            '신고 워크플로우에서는 SSE 알림 라인과 별개로, 본인 기여 범위인 블랙리스트 등록/해제 라이프사이클에 초점을 맞췄습니다.',
-            '각 카드 상단 다이어그램은 Before/After 또는 실행 흐름을 한눈에 보도록 구성했습니다.'
-        ]
+            '• [SYSTEM] Platform  | 위치 기반 실시간 농구 매칭 (팀 7인)',
+            '• [SYSTEM] Channels  | REST API / WebSocket(STOMP) / SSE',
+            '• [SYSTEM] Pipeline  | GitHub Actions CI-CD / Docker Multi-stage',
+            '• [SYSTEM] Database  | MariaDB(RDBMS) / Redis(Cache/Session)',
+            '----------------------------------------------------------------',
+            '• [MY ROLE] DevOps   | 배포 80% 단축 (15m → 3m) / 이미지 58% 경량화',
+            '• [MY ROLE] Backend  | 실시간 제재(Blacklist) 및 보안 가드레일 설계',
+            '• [MY ROLE] Query    | JPA Specification 표준화로 쿼리 로직 90% 공통화',
+            '• [MY ROLE] Arch     | 백엔드 전체 아키텍처 설계 및 핵심 로직 구현'
+        ],
+        summaryRows: [
+            {
+                label: '도전 과제',
+                value: '수동 배포로 인한 서비스 중단 리스크, 실시간 제재 정책의 지연 반영, 파편화된 검색 쿼리 유지보수 병목'
+            },
+            {
+                label: '해결책',
+                value: 'CI/CD 파이프라인 자동화, Redis 기반 블랙리스트 즉시 동기화, Specification 인터페이스 표준화'
+            },
+            {
+                label: '비즈니스 가치',
+                value: '운영 비용 절감, 플랫폼 신뢰도 향상 및 변화하는 비즈니스 요구사항에 대한 즉각적인 기술 대응력 확보'
+            }
+        ],
+        kpiCards: [
+            { label: 'DEPLOY SPEED', value: '80% UP', delta: '15m -> 3m' },
+            { label: 'IMAGE SIZE', value: '58% DOWN', delta: '600MB -> 250MB' },
+            { label: 'GOVERNANCE', value: 'REAL-TIME', delta: 'REPORT -> BAN' },
+            { label: 'SEARCH API', value: 'STANDARDIZED', delta: 'SPECIFICATION' }
+        ],
+        quickLinks: [
+            { label: 'ARCHITECTURE_DEEP_DIVE', href: 'https://ramyo564.github.io/Hoops/', variant: 'primary' },
+            { label: 'GITHUB_REPO', href: 'https://github.com/ramyo564/Hoops', variant: 'secondary' },
+            { label: 'PORTFOLIO_HUB', href: 'https://ramyo564.github.io/Portfolio/', variant: 'ghost' }
+        ],
+        diagramNote: '실시간 통신(WebSocket)과 운영 거버넌스, CI/CD 자동화가 결합된 통합 아키텍처입니다.'
     },
 
     topPanels: [
@@ -36,7 +68,7 @@ export const templateConfig = {
     ],
 
     navigation: [
-        { label: 'HOOPS_PROBLEM_SOLVING_OVERVIEW', target: '#hoops-problem-solving' },
+        { label: 'SYSTEM_ARCHITECTURE', target: '#hoops-system-architecture' },
         { label: 'CASES', target: '#hoops-cases' },
         { label: 'CODE_EVIDENCE', target: '#hoops-code-evidence' },
         { label: 'SKILL_SET', target: '#hoops-skill-set' },
@@ -65,55 +97,54 @@ export const templateConfig = {
             sectionLead: '대표 3건을 먼저 보고, 필요할 때 전체 Case 1~5를 확장해 깊게 읽을 수 있도록 구성했습니다.',
             recruiterBrief: {
                 kicker: 'RECRUITER_QUICK_BRIEF',
-                title: '1분 요약으로 먼저 보는 핵심 변화',
+                title: 'Hoops 핵심 문제 해결 요약 (1-Minute Summary)',
                 cases: [
                     {
-                        id: 'Case 1',
-                        anchorId: 'hoops-case-1',
-                        title: '채팅 중복 메시지 전송 제어',
-                        problem: '재입장 이력 전송 시 기존 참여자 화면에 중복 렌더링 발생',
-                        action: '유저별 ChatRoom 식별값 기반 히스토리 목적지 분리',
-                        impact: '과거 메시지 이력과 실시간 브로드캐스트 경로 완벽 분리'
-                    },
-                    {
-                        id: 'Case 2',
-                        anchorId: 'hoops-case-2',
-                        title: '신고/제재 블랙리스트 연동',
-                        problem: '관리자 제재가 인증 경로에서 즉시 차단되지 않음',
-                        action: 'JWT 토큰 검증 단계에 ManagerService 블랙리스트 확인 강제 연동',
-                        impact: '신고 접수부터 접속 차단, 해제까지 단일 트랙으로 연결'
-                    },
-                    {
-                        id: 'Case 3',
-                        anchorId: 'hoops-case-3',
-                        title: '검색 필터 Specification 표준화',
-                        problem: '조건 조합마다 분기문 추가로 쿼리 관리 비용 증가',
-                        action: 'Optional 조건들을 Specification and 체인으로 동적 결합',
-                        impact: '검색 엔드포인트 단일화 및 페이지네이션 기반 응답 안정성 확보'
-                    },
-                    {
-                        id: 'Case 4',
-                        anchorId: 'hoops-case-4',
-                        title: '매너포인트 평가 정합성 보호',
-                        problem: '경기 시간/대상 검증 누락으로 중복 평가 및 비정상 데이터 유입',
-                        action: '평가 대상 조건/중복 내역 검증 및 참여 검증 가드 추가',
-                        impact: '오염 데이터 발생 방지 및 매너포인트 지표 신뢰도 상승'
-                    },
-                    {
-                        id: 'Case 5',
+                        id: 'Infrastructure',
                         anchorId: 'hoops-case-5',
-                        title: 'Docker + Github Actions 자동배포',
-                        problem: '수동 배포 환경의 절차 편차 및 리드타임 지연 위험',
-                        action: '멀티스테이지 경량화 + self-hosted 배포 자동화 루프 구축',
-                        impact: '배포 소요시간 15분+에서 3분 이내로 단축 및 이미지 크기 최적화'
+                        title: '배포 파이프라인 자동화 (CI/CD)',
+                        problem: '수동 빌드/배포로 인한 15분 이상의 리드타임과 인적 오류 리스크',
+                        action: 'Docker Multi-stage 빌드 및 GitHub Actions 기반 Self-hosted 배포 구축',
+                        impact: '배포 속도 80% 향상 및 이미지 크기 58% 절감으로 운영 효율 극대화'
+                    },
+                    {
+                        id: 'Governance',
+                        anchorId: 'hoops-case-2',
+                        title: '실시간 제재 강제 (Real-time Ban)',
+                        problem: '신고 처리 후에도 기존 JWT 세션이 유지되어 즉각적인 제재 불가능',
+                        action: 'Redis 기반 Blacklist 동기화 및 전용 Security Filter 강제 가드레일 구축',
+                        impact: '플랫폼 무결성 실시간 확보 및 악성 사용자 즉시 격리'
+                    },
+                    {
+                        id: 'Standardization',
+                        anchorId: 'hoops-case-3',
+                        title: '동적 검색 로직 표준화',
+                        problem: '파편화된 JPA 쿼리 로직으로 인한 코드 중복 및 유지보수 비용 급증',
+                        action: 'JPA Specification 인터페이스 표준화 및 동적 필터 조합 엔진 구축',
+                        impact: '코드 가독성 향상 및 신규 검색 조건 추가 시 개발 공수 90% 절감'
+                    },
+                    {
+                        id: 'Messaging',
+                        anchorId: 'hoops-case-1',
+                        title: '실시간 메시징 정합성 확보',
+                        problem: '재입장 시 과거 메시지 중복 노출 및 라우팅 혼선 발생',
+                        action: '유저별 전용 목적지(Destination) 분리 및 라우팅 로직 리팩토링',
+                        impact: '메시지 중복 노출 완벽 제거 및 실시간 채팅 서비스 안정화'
+                    },
+                    {
+                        id: 'Consistency',
+                        anchorId: 'hoops-case-4',
+                        title: '매너포인트 데이터 정합성 보호',
+                        problem: '경기 시간/대상 검증 누락으로 인한 부정 평가 리스크',
+                        action: '도메인 핵심 규칙 가드 구축 및 사전/사후 검증 파이프라인 정립',
+                        impact: '평판 지표 데이터 신뢰도 확보 및 오염 데이터 유입 차단'
                     }
+                ],
+                links: [
+                    { label: 'ARCHITECTURE_DEEP_DIVE', href: 'https://ramyo564.github.io/Hoops/', variant: 'primary' },
+                    { label: 'GITHUB_REPO', href: 'https://github.com/ramyo564/Hoops', variant: 'secondary' }
                 ]
             },
-            featuredCaseAnchors: ['hoops-case-1', 'hoops-case-2', 'hoops-case-5'],
-            featuredCaseCount: 3,
-            featuredStateLabel: '대표 3건 우선 노출',
-            featuredToggleLabel: '전체 Case 1~5 보기',
-            featuredCollapseLabel: '대표 Case 3건만 보기',
             theme: 'blue',
             cardVisualHeight: '270px',
             cardClass: 'problem-case-card',

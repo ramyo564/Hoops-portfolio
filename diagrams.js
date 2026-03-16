@@ -1,4 +1,60 @@
 export const diagrams = {
+    'hoops-integrated-architecture': `
+        graph TB
+        subgraph Client_Layer [Client Layer]
+            Web[Web Browser]
+        end
+
+        subgraph Load_Balancer [Edge]
+            Nginx[Nginx / Reverse Proxy]
+        end
+
+        subgraph Application_Layer [Backend: Spring Boot]
+            direction TB
+            Auth[Auth & Security / JWT]
+            Chat[Realtime Chat / WebSocket]
+            Game[Game & Match / JPA]
+            Alarm[Notification / SSE]
+            Gov[Governance / Blacklist]
+        end
+
+        subgraph Data_Layer [Data & Persistence]
+            MariaDB[(MariaDB: Domain Data)]
+            Redis[(Redis: Refresh Token / Emitters)]
+        end
+
+        subgraph DevOps_Layer [CI/CD & Ops]
+            GHA[GitHub Actions]
+            Docker[Docker Hub]
+            SelfRunner[Self-hosted Runner]
+        end
+
+        %% Connections
+        Web <-->|HTTPS / WSS / SSE| Nginx
+        Nginx <--> Auth
+        Nginx <--> Chat
+        Nginx <--> Game
+        Nginx <--> Alarm
+
+        Chat --- Redis
+        Alarm --- Redis
+        Game --- MariaDB
+        Gov --- MariaDB
+        Auth --- MariaDB
+
+        GHA --> Docker
+        Docker --> SelfRunner
+        SelfRunner -->|Deploy| Application_Layer
+
+        %% Styling
+        classDef blue fill:#161b22,stroke:#58a6ff,color:#c9d1d9
+        classDef orange fill:#161b22,stroke:#d29922,color:#c9d1d9
+        classDef green fill:#161b22,stroke:#238636,color:#c9d1d9
+        class Web,Nginx blue
+        class Auth,Chat,Game,Alarm,Gov orange
+        class MariaDB,Redis,GHA,Docker,SelfRunner green
+    `,
+
     'hoops-problem-overview': `
         graph LR
         Resume[Resume Hoops Section] --> SelectOne[Select One Issue]
